@@ -4,7 +4,15 @@
 *.dll
 *.so
 *.dylib
+*.pdf
 
+.idea/
+
+# Golang directories
+bin/
+pkg/
+
+output/
 # Test binary, built with `go test -c`
 *.test
 
