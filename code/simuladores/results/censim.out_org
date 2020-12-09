@@ -1,0 +1,234 @@
+RELOJ LOCAL !!!  =  0
+STRUCT LEFS
+	Nº transiciones:  3
+------Lista transiciones---------
+Dato Transicion:
+IDLOCALTRANSICION:  0
+ VALOR LEF:  0
+ TIEMPO:  0
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  0 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  1 		CTE:  -1
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  1
+ VALOR LEF:  1
+ TIEMPO:  0
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  1 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  2
+ VALOR LEF:  2
+ TIEMPO:  0
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  2 		CTE:  2
+ LISTA DE CTES PUL: 
+	TRANSICION:  0 		CTE:  -1
+------Final lista transiciones---------
+FINAL ESTRUCTURA LEFS
+-----------Stack de transiciones sensibilizadas---------
+			 0
+-----------Final Stack de transiciones---------
+-----------Lista eventos después de disparos---------
+Estructura EventList
+  Evento ->  0
+    TIEMPO:  1
+    TRANSICION:  2
+    CONSTANTE:  -1
+  Evento ->  1
+    TIEMPO:  1
+    TRANSICION:  1
+    CONSTANTE:  -1
+-----------Final lista eventos---------
+NEXT CLOCK...... :  1
+RELOJ LOCAL !!!  =  1
+STRUCT LEFS
+	Nº transiciones:  3
+------Lista transiciones---------
+Dato Transicion:
+IDLOCALTRANSICION:  0
+ VALOR LEF:  1
+ TIEMPO:  0
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  0 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  1 		CTE:  -1
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  1
+ VALOR LEF:  0
+ TIEMPO:  1
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  1 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  2
+ VALOR LEF:  1
+ TIEMPO:  1
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  2 		CTE:  2
+ LISTA DE CTES PUL: 
+	TRANSICION:  0 		CTE:  -1
+------Final lista transiciones---------
+FINAL ESTRUCTURA LEFS
+-----------Stack de transiciones sensibilizadas---------
+			 1
+-----------Final Stack de transiciones---------
+-----------Lista eventos después de disparos---------
+Estructura EventList
+  Evento ->  0
+    TIEMPO:  2
+    TRANSICION:  2
+    CONSTANTE:  -1
+-----------Final lista eventos---------
+NEXT CLOCK...... :  2
+RELOJ LOCAL !!!  =  2
+STRUCT LEFS
+	Nº transiciones:  3
+------Lista transiciones---------
+Dato Transicion:
+IDLOCALTRANSICION:  0
+ VALOR LEF:  1
+ TIEMPO:  0
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  0 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  1 		CTE:  -1
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  1
+ VALOR LEF:  1
+ TIEMPO:  1
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  1 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  2
+ VALOR LEF:  0
+ TIEMPO:  2
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  2 		CTE:  2
+ LISTA DE CTES PUL: 
+	TRANSICION:  0 		CTE:  -1
+------Final lista transiciones---------
+FINAL ESTRUCTURA LEFS
+-----------Stack de transiciones sensibilizadas---------
+			 2
+-----------Final Stack de transiciones---------
+-----------Lista eventos después de disparos---------
+Estructura EventList
+  Evento ->  0
+    TIEMPO:  3
+    TRANSICION:  0
+    CONSTANTE:  -1
+-----------Final lista eventos---------
+NEXT CLOCK...... :  3
+RELOJ LOCAL !!!  =  3
+STRUCT LEFS
+	Nº transiciones:  3
+------Lista transiciones---------
+Dato Transicion:
+IDLOCALTRANSICION:  0
+ VALOR LEF:  0
+ TIEMPO:  3
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  0 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  1 		CTE:  -1
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  1
+ VALOR LEF:  1
+ TIEMPO:  1
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  1 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  2
+ VALOR LEF:  2
+ TIEMPO:  2
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  2 		CTE:  2
+ LISTA DE CTES PUL: 
+	TRANSICION:  0 		CTE:  -1
+------Final lista transiciones---------
+FINAL ESTRUCTURA LEFS
+-----------Stack de transiciones sensibilizadas---------
+			 0
+-----------Final Stack de transiciones---------
+-----------Lista eventos después de disparos---------
+Estructura EventList
+  Evento ->  0
+    TIEMPO:  4
+    TRANSICION:  2
+    CONSTANTE:  -1
+  Evento ->  1
+    TIEMPO:  4
+    TRANSICION:  1
+    CONSTANTE:  -1
+-----------Final lista eventos---------
+NEXT CLOCK...... :  4
+RELOJ LOCAL !!!  =  4
+STRUCT LEFS
+	Nº transiciones:  3
+------Lista transiciones---------
+Dato Transicion:
+IDLOCALTRANSICION:  0
+ VALOR LEF:  1
+ TIEMPO:  3
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  0 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  1 		CTE:  -1
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  1
+ VALOR LEF:  0
+ TIEMPO:  4
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  1 		CTE:  1
+ LISTA DE CTES PUL: 
+	TRANSICION:  2 		CTE:  -1
+Dato Transicion:
+IDLOCALTRANSICION:  2
+ VALOR LEF:  1
+ TIEMPO:  4
+ DURACION DISPARO:  1
+ LISTA DE CTES IUL: 
+	TRANSICION:  2 		CTE:  2
+ LISTA DE CTES PUL: 
+	TRANSICION:  0 		CTE:  -1
+------Final lista transiciones---------
+FINAL ESTRUCTURA LEFS
+-----------Stack de transiciones sensibilizadas---------
+			 1
+-----------Final Stack de transiciones---------
+-----------Lista eventos después de disparos---------
+Estructura EventList
+  Evento ->  0
+    TIEMPO:  5
+    TRANSICION:  2
+    CONSTANTE:  -1
+-----------Final lista eventos---------
+NEXT CLOCK...... :  5
+Eventos por segundo = 1075.311103

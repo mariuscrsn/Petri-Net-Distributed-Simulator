@@ -1,0 +1,52 @@
+/*
+	Ejemplo con estos parametros
+		Nombre fichero: 3subredes
+		Numero horizontales: 2
+		Numero verticales: 2
+		Numero bloques: 3
+*/
+RED prueba;
+
+	SUBRED sub0;
+		LUGARES p0,p1,p2,p3,p4;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1,p2;
+			t1: PRE p3,p4;
+			 POST p0;
+		MARCADO
+			p0;
+		TIEMPO
+			t0,t1;
+		INTERFASE
+			ENTRADA p3,p4;
+			SALIDA p1,p2;
+	FINSUBRED;
+
+	SUBRED sub1;
+		LUGARES p0,p1;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+		TIEMPO t0;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p1;
+	FINSUBRED;
+
+	SUBRED sub2;
+		LUGARES p0,p1;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+		TIEMPO t0;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p1;
+	FINSUBRED;
+
+SINCRONIZACION
+	(sub0,p1,p2,p3,p4) <=(p1global,p2global,p3global,p4global)
+	(sub1,p0,p1) <= (p1global,p3global)
+	(sub2,p0,p1) <= (p2global,p4global)
+FINRED;
