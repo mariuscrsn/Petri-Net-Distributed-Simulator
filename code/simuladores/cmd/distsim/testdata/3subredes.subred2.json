@@ -14,10 +14,10 @@
         ]
       ],
       "ii_listactes_PUL": [
-        [
-          -2,
-          -1
-        ]
+        {
+          "ii_idTrans": 1,
+          "ii_Cst": -1
+        }
       ],
       "ii_vecesdisparada": 0,
       "ii_grupoconflicto": 0,

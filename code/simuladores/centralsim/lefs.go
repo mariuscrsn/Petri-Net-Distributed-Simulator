@@ -1,4 +1,4 @@
-//Package centralsim with several files to offer a centralized simulation
+// Package centralsim with several files to offer a centralized simulation
 // This file deals with the low level lefs encoding of a petri net
 package centralsim
 
@@ -8,10 +8,8 @@ import (
 	"os"
 )
 
-//type TypeIndexSubnet int32
-
+// type TypeIndexSubnet int32
 //----------------------------------------------------------------------------
-
 // Lefs es el tipo de datos principal que gestiona el disparo de transiciones.
 type Lefs struct {
 	// Slice de transiciones de esta subred
@@ -26,14 +24,14 @@ type Lefs struct {
 func Load(filename string) (Lefs, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "open json lefs file: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "open json lefs file: %v\n", err)
 		return Lefs{}, err
 	}
 	defer file.Close()
 
 	result := Lefs{}
 	if err := json.NewDecoder(file).Decode(&result); err != nil {
-		fmt.Fprintf(os.Stderr, "Decode json 		file: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "Decode json 		file: %v\n", err)
 		return Lefs{}, err
 	}
 

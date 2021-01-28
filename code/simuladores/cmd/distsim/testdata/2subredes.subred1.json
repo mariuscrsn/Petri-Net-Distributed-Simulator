@@ -8,10 +8,36 @@
       "ii_tiempo": 0,
       "ii_duracion_disparo": 1,
       "ii_listactes_IUL": [
-        [
-          2,
+        {
+          "ii_idTrans": 2,
+          "ii_Cst": 1
+        }
+      ],
+      "ii_listactes_PUL": [
+        {
+          "ii_idTrans": 1,
+          "ii_Cst": -1
+        }
+      ],
+      "ii_vecesdisparada": 0,
+      "ii_grupoconflicto": 0,
+      "iL_tiemposhastamarca": {
+        "il_tiempos": [
           1
         ]
+      },
+      "ib_desalida": true
+    },
+    {
+      "ii_idglobal": 3,
+      "ii_valor": 1,
+      "ii_tiempo": 0,
+      "ii_duracion_disparo": 1,
+      "ii_listactes_IUL": [
+        {
+          "ii_idTrans": 3,
+          "ii_Cst": 1
+        }
       ],
       "ii_listactes_PUL": [
         {
@@ -29,7 +55,7 @@
       "ib_desalida": true
     }
   ],
-  "ii_indice": 1,
+  "ii_indice": 2,
   "is_transicionessensibilizadas": [],
   "il_eventos": {
     "il_milista": []
@@ -44,6 +70,9 @@
     "il_milista": [
       [
         2
+      ],
+      [
+        3
       ]
     ]
   }

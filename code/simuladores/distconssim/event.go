@@ -1,16 +1,25 @@
 //Package distconssim with several files to offer a distributed conservative simulation
 package distconssim
 
-import "fmt"
+import (
+	"distconssim/utils"
+	"fmt"
+)
+
+const FINISH_EVENT = -1
 
 // Event define el evento básico de simulación
 type Event struct {
 	// Tiempo para el que debemos considerar el evento
 	IiTiempo TypeClock
 	// A que transicion (indice transicion en subred)
-	IiTransicion IndLocalTrans
+	IiTransicion IndTrans
 	// Constante que mandamos
 	IiCte TypeConst
+	// True si es un evento nulo
+	Ib_IsNULL bool
+	// Nombre del nodo desde el que se envia
+	Is_Sender string
 }
 
 /*
@@ -23,7 +32,7 @@ type Event struct {
    COMENTARIOS:
 -----------------------------------------------------------------
 
-func NewEvento(ai_tiempo TypeClock, ai_transicion IndLocalTrans, ai_cte TypeConst) *Event {
+func NewEvento(ai_tiempo TypeClock, ai_transicion IndTrans, ai_cte TypeConst) *Event {
 	e := new(Event)
 	set_tiempo(e.ai_tiempo)
 	set_transicion(e.ai_transicion)
@@ -37,7 +46,7 @@ func (e *Event) SetTiempo(aiTiempo TypeClock) {
 }
 
 // SetTransicion modifica la transicion del evento
-func (e *Event) SetTransicion(aiTransicion IndLocalTrans) {
+func (e *Event) SetTransicion(aiTransicion IndTrans) {
 	e.IiTransicion = aiTransicion
 }
 
@@ -52,21 +61,49 @@ func (e Event) getTiempo() TypeClock {
 }
 
 // getTransicion obtiene la trasicion del evento
-func (e Event) getTransicion() IndLocalTrans {
+func (e Event) getTransicion() IndTrans {
 	return e.IiTransicion
 }
 
-// getCte obtiene la cte del evento a aplicar a la transicion
+// getCte obtiene la cte del evento a aplicar a la transición
 func (e Event) getCte() TypeConst {
 	return e.IiCte
 }
 
+// devuelve true si y solo si el evento indica el fin de la ejecución
+func (e Event) IsClosingEvent() bool {
+	return e.IiTransicion == FINISH_EVENT
+}
+
+// devuelve true si y solo si es un evento nulo
+func (e Event) IsNullEvent() bool {
+	return e.Ib_IsNULL
+}
+
+// getCte obtiene la cte del evento a aplicar a la transición
+func (e Event) getSender() string {
+	return e.Is_Sender
+}
+
 // Imprime atributos de evento para depurar errores
-func (e Event) Imprime(i int) {
-	fmt.Println("  Evento -> ", i)
-	fmt.Println("    TIEMPO: ", e.IiTiempo)
-	fmt.Println("    TRANSICION: ", e.IiTransicion)
-	fmt.Println("    CONSTANTE: ", e.IiCte)
+func (e Event) Imprime(i int, l *utils.Logger) {
+	l.Trace.Println("  Evento -> ", i)
+	l.Trace.Println("    TIEMPO: ", e.IiTiempo)
+	l.Trace.Println("    TRANSICION: ", e.IiTransicion)
+	l.Trace.Println("    CONSTANTE: ", e.IiCte)
+}
+
+// Imprime atributos de evento para depurar errores
+func (e Event) String() string {
+	res := "{ "
+	res += fmt.Sprintf("INDTRANS: %d,\tSENDER: %s,\tTIEMPO: %d", e.IiTransicion, e.Is_Sender, e.IiTiempo)
+	if e.Ib_IsNULL {
+		res += ",\tNULL"
+	} else {
+		res += fmt.Sprintf(",\tCSTE: %d", e.IiCte)
+	}
+	res += " }"
+	return res
 }
 
 //----------------------------------------------------------------------------
@@ -86,11 +123,14 @@ func (el EventList) longitud() int {
 	return len(el)
 }
 
+// isEmpty: devuelve true si y solo si la lista está vacía
+func (el EventList) isEmpty() bool {
+	return len(el) == 0
+}
+
 // inserta evento en la lista de eventos con ordenación de tiempo
 func (el *EventList) inserta(aeEvento Event) {
 	var i int // INITIALIZED to 0 !!!
-
-	//fmt.Println("Insertar evento en lista : ", ae_evento, *self)
 
 	// Obtengo la posicion ordenada del evento en slice con i
 	for _, e := range *el {
@@ -100,10 +140,7 @@ func (el *EventList) inserta(aeEvento Event) {
 		i++
 	}
 
-	//fmt.Println("POSICION a INSERTAR en lista de eventos : ", i)
 	*el = append((*el)[:i], append([]Event{aeEvento}, (*el)[i:]...)...)
-
-	//fmt.Println("DESPUES de insertar : ", *self)
 }
 
 // recogePrimerEvento encolado
@@ -127,14 +164,8 @@ func (el *EventList) eliminaPrimerEvento() {
 
 // getPrimerEvento toma el primer evento de la lista de eventos
 func (el *EventList) popPrimerEvento() Event {
-	/* fmt.Println("Lista antes de eliminar primer evento :")
-	(*self).il_eventos.Imprime()
-	*/
 	leEvento := el.leePrimerEvento()
 	el.eliminaPrimerEvento()
-	/*fmt.Println("Lista DESPUES de eliminar primer evento :")
-	(*self).il_eventos.Imprime()
-	*/
 	return leEvento
 }
 
@@ -162,11 +193,22 @@ func (el *EventList) hayEventos(aiTiempo TypeClock) bool {
 }
 
 // Imprime la lista de eventos para depurar errores
-func (el EventList) Imprime() {
-	fmt.Println("Estructura EventList")
+func (el EventList) Imprime(l *utils.Logger) {
+	l.Trace.Println("Estructura EventList")
 	for i, e := range el {
-		e.Imprime(i)
+		e.Imprime(i, l)
 	}
+
+}
+
+// Imprime la lista de eventos para depurar errores
+func (el EventList) String() string {
+	res := "[ "
+	for _, e := range el {
+		res += fmt.Sprintf("%s, ", e)
+	}
+	res += " ]"
+	return res
 }
 
 // FIN DEL TIPO ABSTRACTO EventList

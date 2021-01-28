@@ -24,4 +24,16 @@ output/
 
 *.jar
 
+# Results folder
 results/*
+
+# Exclude executables
+code/simuladores/cmd/censim/censim
+code/simuladores/cmd/distsim/distsim
+code/simuladores/cmd/distsim/bin/*
+code/simuladores/cmd/distsim/results/*
+
+# Original code
+orig/
+
+

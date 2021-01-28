@@ -26,7 +26,7 @@ type ResultadoTransition struct {
 type SimulationEngine struct {
 	iiRelojlocal   TypeClock             // Valor de mi reloj local
 	ilMislefs      Lefs                  // Estructura de datos del simulador
-	IlEventos      EventList             //Lista de eventos a procesar
+	IlEventos      EventList             // Lista de eventos a procesar
 	ivTransResults []ResultadoTransition // slice dinamico con los resultados
 	EventNumber    float64               // cantidad de eventos ejecutados
 }
@@ -180,7 +180,7 @@ func (se *SimulationEngine) SimularPeriodo(CicloInicial, CicloFinal TypeClock) {
 
 	elapsedTime := time.Since(ldIni)
 
-	fmt.Printf("Eventos por segundo = %f",
+	fmt.Printf("Eventos por segundo = %f\n",
 		se.EventNumber/elapsedTime.Seconds())
 
 	/*	// Devolver los resultados de la simulacion

@@ -1,29 +1,32 @@
 package distconssim
 
 import (
-	"fmt"
+	"distconssim/utils"
 )
 
 //--------------------------------------------------------------------------
 
-// IndLocalTrans is a index of a transition in the local lefs list
-type IndLocalTrans int
+const TRANS_IND_ERROR IndTrans = -1
+
+// IndTrans is a index of a transition in the local lefs list
+type IndTrans int
 
 //TypeConst is the constant to propagate in lefs
 type TypeConst int
 
 // TransitionConstant is the pair transition and cte to propagate to
-//type TransitionConstant struct {
-//	ITrans IndLocalTrans
-//	Cnstnt TypeConst
-//}
+type TransitionConst struct {
+	ITrans IndTrans  `json:"ii_idTrans"`
+	Const  TypeConst `json:"ii_Cst"`
+	//	NodeName string			`json:"is_nodeName"`
+}
 
 //------------------------------------------------------------------------
 
 // Transition : Tipo abstracto  para guardar la informacion de una transicion
 type Transition struct {
 	// IiIdLocal en la tabla global de transiciones
-	IiIndLocal IndLocalTrans `json:"ii_idglobal"`
+	IiIndGlobal IndTrans `json:"ii_idglobal"`
 
 	// iiValorLef es el valor que tiene la funcion de
 	// sensibilizacion en el instante de tiempo que nos da
@@ -36,12 +39,16 @@ type Transition struct {
 
 	// vector con parejas :
 	//		transicion junto con cte a actualizarle de forma inmediata
-	TransConstIul [][2]int `json:"ii_listactes_IUL"`
+	//TransConstIul [][2]int `json:"ii_listactes_IUL"`
+	TransConstIul []TransitionConst `json:"ii_listactes_IUL"`
 	// vector con parejas :
 	//		de transiciones a las que tengo que propagar cte
 	// 		en el tiempo de disparo de esta transicion, junto con la cte que
 	// 		tengo que propagar
-	TransConstPul [][2]int `json:"ii_listactes_PUL"`
+	TransConstPul []TransitionConst `json:"ii_listactes_PUL"`
+
+	// True si y solo si es una trans de salida hacia otro nodo
+	DeSalida bool `json:"ib_desalida"`
 }
 
 // actualizaTiempo modifica el tiempo de la transicion dada
@@ -60,28 +67,32 @@ func (t *Transition) updateFuncValue(aiValLef TypeConst) {
 }
 
 // Imprime los atributos de una transicion para depurar errores
-func (t *Transition) Imprime() {
-	fmt.Println("Dato Transicion:")
-	fmt.Println("IDLOCALTRANSICION: ", t.IiIndLocal)
-	fmt.Println(" VALOR LEF: ", t.IiValorLef)
-	fmt.Println(" TIEMPO: ", t.IiTiempo)
-	fmt.Println(" DURACION DISPARO: ", t.IiDuracionDisparo)
-	fmt.Println(" LISTA DE CTES IUL: ")
+func (t *Transition) Imprime(logger *utils.Logger) {
+	logger.Trace.Println("Dato Transicion:")
+	logger.Trace.Println("IDLOCALTRANSICION: ", t.IiIndGlobal)
+	logger.Trace.Println("\tVALOR LEF: ", t.IiValorLef)
+	logger.Trace.Println("\tTIEMPO: ", t.IiTiempo)
+	logger.Trace.Println("\tDURACION DISPARO: ", t.IiDuracionDisparo)
+	logger.Trace.Println("\tLISTA DE CTES IUL: ")
 	for _, v := range t.TransConstIul {
-		fmt.Println("\tTRANSICION: ", v[0], "\t\tCTE: ", v[1])
+		logger.Trace.Println("\tTRANSICION: ", v.ITrans, "\t\tCTE: ", v.Const)
 	}
-	fmt.Println(" LISTA DE CTES PUL: ")
+	logger.Trace.Printf("\tLISTA DE CTES PUL: \n")
 	for _, v := range t.TransConstPul {
-		fmt.Println("\tTRANSICION: ", v[0], "\t\tCTE: ", v[1])
+		logger.Trace.Printf("\t\tTRANSICION: %d\t\tCTE: %d\n", v.ITrans, v.Const)
+		//if t.DeSalida {
+		//	logger.Trace.Print("\t\tNODE: ", v.NodeName)
+		//}
 	}
+	logger.Trace.Println()
 }
 
 // ImprimeValores de la transición
-func (t *Transition) ImprimeValores() {
-	fmt.Println("Transicion -> ")
-	fmt.Println("\tIDLOCALTRANSICION: ", t.IiIndLocal)
-	fmt.Println("\t\tVALOR LEF: ", t.IiValorLef)
-	fmt.Println("\t\tTIEMPO: ", t.IiTiempo)
+func (t *Transition) ImprimeValores(logger *utils.Logger) {
+	logger.Trace.Println("Transicion -> ")
+	logger.Trace.Println("\tIDLOCALTRANSICION: ", t.IiIndGlobal)
+	logger.Trace.Println("\t\tVALOR LEF: ", t.IiValorLef)
+	logger.Trace.Println("\t\tTIEMPO: ", t.IiTiempo)
 }
 
 //--------------------------------------------------------------------------
@@ -89,15 +100,32 @@ func (t *Transition) ImprimeValores() {
 // TransitionList is a list of transitions themselves
 type TransitionList []Transition //Slice de transiciones como Lista
 
-// length return length of ListTransitions with type adapted to IndLocalTrans
-func (lt TransitionList) length() IndLocalTrans {
-	return IndLocalTrans(len(lt))
+// length return length of ListTransitions with type adapted to IndTrans
+func (tl TransitionList) length() IndTrans {
+	return IndTrans(len(tl))
+}
+
+// Get local IndTrans of global transition
+func (tl *TransitionList) getLocalIndTrans(indGlob IndTrans) IndTrans {
+	for indLoc, tr := range *tl {
+		if tr.IiIndGlobal == indGlob {
+			return IndTrans(indLoc)
+		}
+	}
+	return TRANS_IND_ERROR
+}
+
+func (tl TransitionList) ImprimeTL(logger *utils.Logger) {
+	logger.Trace.Println("Transition list: [ ")
+	for _, tr := range tl {
+		logger.Trace.Println(tr)
+	}
 }
 
 //----------------------------------------------------------------------
 
 // TransitionStack is a Stack of transition indices
-type TransitionStack []IndLocalTrans
+type TransitionStack []IndTrans
 
 // MakeTransitionStack crea lista de tamaño aiLongitud
 func MakeTransitionStack(capacidad int) TransitionStack {
@@ -106,12 +134,12 @@ func MakeTransitionStack(capacidad int) TransitionStack {
 }
 
 // push transition id to stack
-func (st *TransitionStack) push(iTr IndLocalTrans) {
+func (st *TransitionStack) push(iTr IndTrans) {
 	*st = append(*st, iTr)
 }
 
 // pop transition id from stack
-func (st *TransitionStack) pop() IndLocalTrans {
+func (st *TransitionStack) pop() IndTrans {
 	if (*st).isEmpty() {
 		return -1
 	}
@@ -127,12 +155,12 @@ func (st TransitionStack) isEmpty() bool {
 	return len(st) == 0
 }
 
-func (st TransitionStack) ImprimeTransStack() {
+func (st TransitionStack) ImprimeTransStack(logger *utils.Logger) {
 	if st.isEmpty() {
-		fmt.Println("\tStack TRANSICIONES VACIA")
+		logger.Trace.Println("\tStack TRANSICIONES VACIA")
 	} else {
 		for _, iTr := range st {
-			fmt.Println("\t\t\t", iTr)
+			logger.Trace.Println("\t\t\t", iTr)
 		}
 	}
 }

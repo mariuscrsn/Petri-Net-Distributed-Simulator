@@ -1,0 +1,22 @@
+{
+  "Nodes": {
+    "P0": {
+      "User" : "cms",
+      "IP": "127.0.0.1",
+      "Port": 16090,
+      "Lookahead": 1
+    },
+    "P1": {
+      "User" : "cms",
+      "IP": "127.0.0.1",
+      "Port": 16091,
+      "Lookahead": 1
+    }
+  },
+  "TransitionsMapping": {
+    "0": "P0",
+    "1": "P0",
+    "2": "P1",
+    "3": "P1"
+  }
+}

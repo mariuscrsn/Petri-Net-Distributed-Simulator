@@ -6,27 +6,79 @@
 package main
 
 import (
+	"distconssim"
 	"distconssim/utils"
 	"fmt"
+	"os"
+	"strconv"
 )
+
+func parseFilesNames(nodeName string, filesPrefix string) (string, string) {
+	nodeInd, _ := strconv.Atoi(nodeName[len(nodeName)-1:])
+	lefsFile := fmt.Sprintf("%s.subred%d.json", filesPrefix, nodeInd)
+	netFile := fmt.Sprintf("%s.network.json", filesPrefix)
+	return netFile, lefsFile
+}
+
+func createMotorSimulation(nodeName string, filesPrefix string) *distconssim.SimulationEngine {
+	// init logger, create files and build files names
+	err := os.Mkdir(utils.RelOutputPath+"results/"+filesPrefix, os.ModePerm)
+	if err != nil {
+		fmt.Printf("Error creating log dir: %s\n", err)
+	}
+	netFile, lefsFile := parseFilesNames(nodeName, filesPrefix)
+	logger := utils.InitLoggers(filesPrefix, nodeName)
+
+	// read partners and transition mapping to them
+	net := distconssim.ReadPartners(netFile)
+	partners := net.Nodes
+	myNode := partners[nodeName]
+	delete(partners, nodeName)
+	logger.Info.Printf("[%s] Reading partners: \n%s", nodeName, partners)
+
+	// Create local node
+	node := distconssim.MakeNode(nodeName, myNode.Port, &partners, logger)
+
+	// Carga de la subred
+	lefs, err := distconssim.LoadLefs(lefsFile, logger)
+	if err != nil {
+		println("Couln't load the Petri Net file !")
+	}
+	return distconssim.MakeMotorSimulation(node, lefs, net.MapTransNode, logger)
+}
 
 func main() {
 
-	partners := utils.ReadPartners()
-	fmt.Printf("Partners: \n%v\n", *partners)
+	if len(os.Args) != 4 {
+		panic("bad usage: distim <nodeName> <files_prefix> <finalClk>")
+	}
 
-	/*
-		// cargamos un fichero de estructura Lef en formato json para centralizado
-		// os.Args[0] es el nombre del programa que no nos interesa
-		lefs, err := centralsim.Load(os.Args[1])
-		if err != nil {
-			println("Couln't load the Petri Net file !")
-		}
+	var nodeName, filesPrefix string
+	nodeName = os.Args[1]
+	filesPrefix = os.Args[2]
+	netFile, lefsFile := parseFilesNames(nodeName, filesPrefix)
 
-		ms := centralsim.MakeMotorSimulation(lefs)
+	// init logger
+	logger := utils.InitLoggers(filesPrefix, nodeName)
 
-		// ciclo 0 hasta ciclo os.args[2]
-		cicloFinal, _ := strconv.Atoi(os.Args[2])
-		ms.SimularPeriodo(0, centralsim.TypeClock(cicloFinal))
-	*/
+	// read partners and transition mapping to them
+	net := distconssim.ReadPartners(netFile)
+	partners := net.Nodes
+	myNode := partners[nodeName]
+	delete(partners, nodeName)
+	logger.Info.Printf("[%s] Reading partners: \n%s", nodeName, partners)
+
+	// Create local node
+	node := distconssim.MakeNode(nodeName, myNode.Port, &partners, logger)
+
+	// Carga de la subred
+	lefs, err := distconssim.LoadLefs(lefsFile, logger)
+	if err != nil {
+		println("Couln't load the Petri Net file !")
+	}
+	ms := distconssim.MakeMotorSimulation(node, lefs, net.MapTransNode, logger)
+
+	// ciclo 0 hasta ciclo os.args[2]
+	cicloFinal, _ := strconv.Atoi(os.Args[3])
+	ms.SimularPeriodo(0, distconssim.TypeClock(cicloFinal))
 }
