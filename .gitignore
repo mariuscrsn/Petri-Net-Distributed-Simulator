@@ -36,4 +36,5 @@ code/simuladores/cmd/distsim/results/*
 # Original code
 orig/
 
+code/simuladores/distconssim/utils/Constants.go
 

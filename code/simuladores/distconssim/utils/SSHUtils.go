@@ -2,10 +2,12 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -44,7 +46,7 @@ func ConnectSSH(user string, host string) *ssh.Client {
 			ssh.KeyAlgoED25519,
 		},
 		// optional tcp connect timeout
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second,
 	}
 
 	// Connect via ssh
@@ -120,4 +122,11 @@ func RunCommandSSH(cmd string, conn *ssh.Client, wg *sync.WaitGroup) {
 		wg.Done()
 	}
 	_ = sess.Close()
+}
+
+func ParseFilesNames(nodeName string, filesPrefix string) (string, string) {
+	nodeInd, _ := strconv.Atoi(nodeName[len(nodeName)-1:])
+	lefsFile := fmt.Sprintf("%s.subred%d.json", filesPrefix, nodeInd)
+	netFile := fmt.Sprintf("%s.network.json", filesPrefix)
+	return netFile, lefsFile
 }
