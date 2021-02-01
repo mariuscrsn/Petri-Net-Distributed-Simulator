@@ -1,22 +1,12 @@
 #!/bin/bash
 
-FINISH_CLK=4
-LEFS_PATH="2subredes.subred"
-NET_FILE_PATH="2subredes.network.json"
-GO_CMD="/usr/local/go/bin/go"
-GO_TARGET="bin/go_build_distsim_go_script"
-WORKDIR="/home/cms/Escritorio/Datos/UNI/redes/practicas/miniproyecto/code/simuladores/cmd/distsim/"
-GO_MAIN_FILE="distsim.go"
-echo "Running script on: $(pwd)"
+TestCases="2SubNets2Br 3SubNets2Br 6SubNets5BrHomogen 6SubNets5Br1BrSlow 6SubNets5BrLA"
 
-rm "${WORKDIR}results/Log_P"*
-netstat -tlpun  2>/dev/null | grep 1609  | tr -s ' ' | cut -d' ' -f7 | cut -d'/' -f1 | xargs -i kill {}
+rm -r bin/distsim results/*
+echo "Building project..."
+go build -i -o bin/distsim distsim.go
 
-echo "Building package ..."
-${GO_CMD} build -i -o "${WORKDIR}${GO_TARGET}" "${WORKDIR}${GO_MAIN_FILE}"
-for i in {1..2} ; do
-  nodeIdx="$((i-1))"
-  nodeName="P${nodeIdx}"
-  echo "Starting node: ${nodeName} ..."
-  "${WORKDIR}${GO_TARGET}" "${nodeName}" "${LEFS_PATH}${nodeIdx}.json" "${NET_FILE_PATH}" "${FINISH_CLK}" &
+for i in ${TestCases}; do
+  echo "Running test ${i} ->->->->"
+  go test -v  -run "$i" distsim_test.go
 done

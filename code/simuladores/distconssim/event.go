@@ -17,7 +17,7 @@ type Event struct {
 	// Constante que mandamos
 	IiCte TypeConst
 	// True si es un evento nulo
-	Ib_IsNULL bool
+	Ib_IsNULL int
 	// Nombre del nodo desde el que se envia
 	Is_Sender string
 }
@@ -77,7 +77,7 @@ func (e Event) IsClosingEvent() bool {
 
 // devuelve true si y solo si es un evento nulo
 func (e Event) IsNullEvent() bool {
-	return e.Ib_IsNULL
+	return e.Ib_IsNULL == 1
 }
 
 // getCte obtiene la cte del evento a aplicar a la transición
@@ -97,7 +97,7 @@ func (e Event) Imprime(i int, l *utils.Logger) {
 func (e Event) String() string {
 	res := "{ "
 	res += fmt.Sprintf("INDTRANS: %d,\tSENDER: %s,\tTIEMPO: %d", e.IiTransicion, e.Is_Sender, e.IiTiempo)
-	if e.Ib_IsNULL {
+	if e.IsNullEvent() {
 		res += ",\tNULL"
 	} else {
 		res += fmt.Sprintf(",\tCSTE: %d", e.IiCte)

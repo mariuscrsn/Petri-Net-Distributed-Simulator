@@ -35,17 +35,16 @@ func main() {
 	logger.Info.Printf("[%s] Reading partners: \n%s", nodeName, partners)
 
 	// Create local node
-	node := distconssim.MakeNode(nodeName, myNode.Port, &partners, logger)
+	node := distconssim.MakeNode(nodeName, myNode.Port, partners, logger)
 
 	// Carga de la subred
 	lefs, err := distconssim.LoadLefs(lefsFile, logger)
 	if err != nil {
 		println("Couln't load the Petri Net file !")
 	}
-	ms := distconssim.MakeMotorSimulation(node, lefs, net.MapTransNode, logger)
-
-	// ciclo 0 hasta ciclo os.args[2]
 	cicloFinal, _ := strconv.Atoi(os.Args[3])
+	ms := distconssim.MakeMotorSimulation(node, lefs, net.MapTransNode, distconssim.TypeClock(cicloFinal), logger)
+
 	fmt.Printf("[%s] Simulating net...\n", nodeName)
-	ms.SimularPeriodo(0, distconssim.TypeClock(cicloFinal))
+	ms.SimularPeriodo()
 }

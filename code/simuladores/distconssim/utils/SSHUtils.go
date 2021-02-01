@@ -17,8 +17,7 @@ import (
 
 const (
 	SshPort        = "22"
-	PrivateKeyPath = "/home/cms/.ssh/id_rsa"
-	//PrivateKeyPath = "/home/a721609/.ssh/id_rsa"
+	PrivateKeyPath = HomePath + ".ssh/id_rsa"
 )
 
 func ConnectSSH(user string, host string) *ssh.Client {
@@ -46,7 +45,7 @@ func ConnectSSH(user string, host string) *ssh.Client {
 			ssh.KeyAlgoED25519,
 		},
 		// optional tcp connect timeout
-		Timeout: 10 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	// Connect via ssh
@@ -118,10 +117,10 @@ func RunCommandSSH(cmd string, conn *ssh.Client, wg *sync.WaitGroup) {
 	//if err != nil && !strings.Contains(cmd, "pkill") {
 	//	panic(err)
 	//}
+
 	if wg != nil {
 		wg.Done()
 	}
-	_ = sess.Close()
 }
 
 func ParseFilesNames(nodeName string, filesPrefix string) (string, string) {

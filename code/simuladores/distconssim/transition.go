@@ -14,13 +14,6 @@ type IndTrans int
 //TypeConst is the constant to propagate in lefs
 type TypeConst int
 
-// TransitionConstant is the pair transition and cte to propagate to
-type TransitionConst struct {
-	ITrans IndTrans  `json:"ii_idTrans"`
-	Const  TypeConst `json:"ii_Cst"`
-	//	NodeName string			`json:"is_nodeName"`
-}
-
 //------------------------------------------------------------------------
 
 // Transition : Tipo abstracto  para guardar la informacion de una transicion
@@ -40,12 +33,12 @@ type Transition struct {
 	// vector con parejas :
 	//		transicion junto con cte a actualizarle de forma inmediata
 	//TransConstIul [][2]int `json:"ii_listactes_IUL"`
-	TransConstIul []TransitionConst `json:"ii_listactes_IUL"`
+	TransConstIul [][]int `json:"ii_listactes_IUL"`
 	// vector con parejas :
 	//		de transiciones a las que tengo que propagar cte
 	// 		en el tiempo de disparo de esta transicion, junto con la cte que
 	// 		tengo que propagar
-	TransConstPul []TransitionConst `json:"ii_listactes_PUL"`
+	TransConstPul [][2]int `json:"ii_listactes_PUL"`
 
 	// True si y solo si es una trans de salida hacia otro nodo
 	DeSalida bool `json:"ib_desalida"`
@@ -75,14 +68,11 @@ func (t *Transition) Imprime(logger *utils.Logger) {
 	logger.Trace.Println("\tDURACION DISPARO: ", t.IiDuracionDisparo)
 	logger.Trace.Println("\tLISTA DE CTES IUL: ")
 	for _, v := range t.TransConstIul {
-		logger.Trace.Println("\tTRANSICION: ", v.ITrans, "\t\tCTE: ", v.Const)
+		logger.Trace.Println("\tTRANSICION: ", v[0], "\t\tCTE: ", v[1])
 	}
 	logger.Trace.Printf("\tLISTA DE CTES PUL: \n")
 	for _, v := range t.TransConstPul {
-		logger.Trace.Printf("\t\tTRANSICION: %d\t\tCTE: %d\n", v.ITrans, v.Const)
-		//if t.DeSalida {
-		//	logger.Trace.Print("\t\tNODE: ", v.NodeName)
-		//}
+		logger.Trace.Printf("\t\tTRANSICION: %d\t\tCTE: %d\n", v[0], v[1])
 	}
 	logger.Trace.Println()
 }

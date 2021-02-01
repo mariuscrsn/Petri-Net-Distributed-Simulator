@@ -1,0 +1,108 @@
+/*
+	Ejemplo con estos parametros
+		Nombre fichero: 6subredes
+		Numero horizontales: 5
+		Numero verticales: 4
+		Numero bloques: 6
+*/
+RED prueba;
+
+	SUBRED sub0;
+		LUGARES p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1,p2,p3,p4,p5;
+			t1: PRE p6,p7,p8,p9,p10;
+			 POST p0;
+		MARCADO
+			p0;
+		TIEMPO
+			t0,t1;
+		INTERFASE
+			ENTRADA p6,p7,p8,p9,p10;
+			SALIDA p1,p2,p3,p4,p5;
+	FINSUBRED;
+
+	SUBRED sub1;
+		LUGARES p0,p1,p2,p3;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+			t1: PRE p1;
+			 POST p2;
+			t2: PRE p2;
+			 POST p3;
+		TIEMPO t0,t1,t2;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p3;
+	FINSUBRED;
+
+	SUBRED sub2;
+		LUGARES p0,p1,p2,p3;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+			t1: PRE p1;
+			 POST p2;
+			t2: PRE p2;
+			 POST p3;
+		TIEMPO t0,t1,t2;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p3;
+	FINSUBRED;
+
+	SUBRED sub3;
+		LUGARES p0,p1,p2,p3;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+			t1: PRE p1;
+			 POST p2;
+			t2: PRE p2;
+			 POST p3;
+		TIEMPO t0,t1,t2;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p3;
+	FINSUBRED;
+
+	SUBRED sub4;
+		LUGARES p0,p1,p2,p3;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+			t1: PRE p1;
+			 POST p2;
+			t2: PRE p2;
+			 POST p3;
+		TIEMPO t0,t1,t2;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p3;
+	FINSUBRED;
+
+	SUBRED sub5;
+		LUGARES p0,p1,p2,p3;
+		TRANSICIONES
+			t0: PRE p0;
+			 POST p1;
+			t1: PRE p1;
+			 POST p2;
+			t2: PRE p2;
+			 POST p3;
+		TIEMPO t0,t1,t2;
+		INTERFASE 
+			ENTRADA p0;
+			SALIDA p3;
+	FINSUBRED;
+
+SINCRONIZACION
+	(sub0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10) <=(p1global,p2global,p3global,p4global,p5global,p6global,p7global,p8global,p9global,p10global)
+	(sub1,p0,p3) <= (p1global,p6global)
+	(sub2,p0,p3) <= (p2global,p7global)
+	(sub3,p0,p3) <= (p3global,p8global)
+	(sub4,p0,p3) <= (p4global,p9global)
+	(sub5,p0,p3) <= (p5global,p10global)
+FINRED;

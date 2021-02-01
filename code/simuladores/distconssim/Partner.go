@@ -50,15 +50,6 @@ func ReadPartners(filename string) *Network {
 	return &net
 }
 
-//func (p Partners) String() string {
-//	res := fmt.Sprint("Partners:\n")
-//	for k, v := range p {
-//		res += fmt.Sprintf("[%s]\t\tIP: %s\t\tPort: %d", k, v.IP, v.Port ) + "\n"
-//	}
-//	res += "\n"
-//	return res
-//}
-
 func (p Partners) String() string {
 	res := fmt.Sprint("Partners:")
 	for k, v := range p {

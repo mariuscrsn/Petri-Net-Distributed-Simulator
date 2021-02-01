@@ -24,27 +24,34 @@ type ResultadoTransition struct {
 
 // SimulationEngine is the basic data type for simulation execution
 type SimulationEngine struct {
-	Node               Node                  // Estructura para la comunicación con el resto de nodos
-	ilMisLefs          Lefs                  // Estructura de datos del simulador
-	iiRelojLocal       TypeClock             // Valor de mi reloj local
+	Node               Node      // Estructura para la comunicación con el resto de nodos
+	ilMisLefs          Lefs      // Estructura de datos del simulador
+	iiRelojLocal       TypeClock // Valor de mi reloj local
+	iiFinClk           TypeClock
 	IlEventosPend      EventList             //Lista de eventos a procesar
 	ivTransResults     []ResultadoTransition // slice dinámico con los resultados
 	EventNumber        float64               // cantidad de eventos ejecutados
 	MapTransitionsNode MapTransitionNode     // diccionario con el nombre del nodo en el que se encuentra cada transición
+	ChRecvEv           chan Event
+	ChFinish           chan bool
 	Logger             *utils.Logger
 }
 
 // MakeMotorSimulation : inicializar SimulationEngine struct
-func MakeMotorSimulation(node *Node, alLaLef Lefs, transDistr MapTransitionNode, logger *utils.Logger) *SimulationEngine {
+func MakeMotorSimulation(node *Node, alLaLef Lefs, transDistr MapTransitionNode, finClk TypeClock, logger *utils.Logger) *SimulationEngine {
 	m := SimulationEngine{}
 	m.Node = *node
 	m.iiRelojLocal = 0
+	m.iiFinClk = finClk
 	m.ilMisLefs = alLaLef
-	m.IlEventosPend = MakeEventList(100) //aun siendo dinámicos...
-	m.ivTransResults = make([]ResultadoTransition, 0, 100)
+	m.IlEventosPend = MakeEventList(utils.MaxEventsQueueCap) //aun siendo dinámicos...
+	m.ivTransResults = make([]ResultadoTransition, 0, utils.MaxEventsQueueCap)
 	m.EventNumber = 0
 	m.MapTransitionsNode = transDistr
 	m.Logger = logger
+	m.ChRecvEv = make(chan Event, 0)
+	m.ChFinish = make(chan bool, 1)
+	go m.Node.waitEvent(m.ChRecvEv, m.ChFinish)
 	return &m
 }
 
@@ -61,22 +68,22 @@ func (se *SimulationEngine) dispararTransicion(ilTr IndTrans) {
 
 	// First apply Iul propagations (Inmediate : 0 propagation time)
 	for _, trCo := range listIul {
-		trIndLocal := trList.getLocalIndTrans(trCo.ITrans)
+		trIndLocal := trList.getLocalIndTrans(IndTrans(trCo[0]))
 		// check if IUL transition belongs to local transition
 		if trIndLocal == TRANS_IND_ERROR {
 			//TODO: it always should be true, delete when it works
 			se.Logger.Error.Printf("Error: IUL transition not belongs to local transition."+
 				"Node: [%s] - IUL trans: %v\n", se.Node.Name, trCo)
 		}
-		trList[trIndLocal].updateFuncValue(trCo.Const)
+		trList[trIndLocal].updateFuncValue(TypeConst(trCo[1]))
 	}
 	// Generamos eventos ocurridos por disparo de transicion ilTr
 	for _, trCo := range listPul {
 		// tiempo = tiempo de la transicion + coste disparo
-		evDstNode := se.MapTransitionsNode[trCo.ITrans]
+		evDstNode := se.MapTransitionsNode[IndTrans(trCo[0])]
 		ev := Event{timeTrans + timeDur,
-			trCo.ITrans,
-			trCo.Const, false, se.Node.Name}
+			IndTrans(trCo[0]),
+			TypeConst(trCo[1]), 0, se.Node.Name}
 		if evDstNode != se.Node.Name { // la transición destino está en otro nodo
 			se.Logger.Info.Printf("Sending event %s to node [%s]\n", ev, evDstNode)
 			se.Node.sendEvent(&ev, evDstNode)
@@ -148,9 +155,6 @@ func (se *SimulationEngine) getLowerEvent() (*Event, bool) {
 	// There is any local event
 	if se.IlEventosPend.isEmpty() {
 		// No events from retarded node
-		//if lowestTimeNode.IncomingEvFIFO == nil {
-		//	panic(fmt.Sprintf("Panic en Node: [%s], %v", se.Node.Name, lowestTimeNode))
-		//}
 		if lowestTimeNode.IncomingEvFIFO.isEmpty() {
 			return nil, false
 		}
@@ -162,7 +166,7 @@ func (se *SimulationEngine) getLowerEvent() (*Event, bool) {
 
 	// Get local event
 	localEv := se.IlEventosPend.leePrimerEvento()
-
+	se.Logger.Trace.Printf("getLowerEvent: LOCAL->%s, lowerFIFOtime: %d\n", localEv, lowestTimeNode.RemoteSafeTime)
 	// No events in lazy node FIFO
 	if lowestTimeNode.IncomingEvFIFO.isEmpty() {
 		if localEv.IiTiempo > lowestTimeNode.RemoteSafeTime {
@@ -185,66 +189,73 @@ func (se *SimulationEngine) getLowerEvent() (*Event, bool) {
 // If not, blocks again until receive the lowset and all FIFO have at least one event. If the recv event is null with
 // lower time, blocks again until receives the correct one.
 func (se *SimulationEngine) getNextEvent() *Event {
-
 	// Iterate until get a processable event or finish event
 	for {
-		e, isLocalEv := se.getLowerEvent()
+		ev, isLocalEv := se.getLowerEvent()
 		// Not blocked, I've get an event to process
-		if e != nil {
+		if ev != nil {
 			// delete event for list
 			if isLocalEv {
 				se.IlEventosPend.eliminaPrimerEvento()
-				se.Logger.Info.Printf("Lower event is local: %s\n", e)
+				se.Logger.Info.Printf("Lower event is local: %s\n", ev)
 			} else {
 				name, remoteNode := se.Node.getLowerTimeFIFO()
 				remoteNode.IncomingEvFIFO.eliminaPrimerEvento()
-				(*se.Node.Partners)[name] = *remoteNode
-				se.Logger.Info.Printf("Lower event is remote: %s\n", e)
+				se.Node.Partners[name] = remoteNode
+				se.Logger.Info.Printf("Lower event is remote: %s\n", ev)
 			}
-			return e
+			return ev
 		}
 
 		// I'm gonna to block, send before it an NULL event
 		_, lowestNodeTime := se.Node.getLowerTimeFIFO()
 		lowestTime := lowestNodeTime.RemoteSafeTime
-		if lowestTime > se.iiRelojLocal && !se.IlEventosPend.isEmpty() { // Time on NULL event depend on local events
-			lowestTime = se.iiRelojLocal
+		clkFstEvLocal := se.IlEventosPend.leePrimerEvento().IiTiempo
+		if lowestTime > clkFstEvLocal && !se.IlEventosPend.isEmpty() { // Time on NULL event depend on local events
+			lowestTime = clkFstEvLocal
 		}
-		// Send null event
+		// Send null event or finish
+		nextTime := lowestTime + lowestNodeTime.LookAhead
+		if lowestTime >= se.iiFinClk || nextTime >= se.iiFinClk {
+			return se.FinishSim()
+		}
 		nullEv := Event{
 			IiTransicion: 0,
 			IiCte:        0,
 			Is_Sender:    se.Node.Name,
-			IiTiempo:     lowestTime + lowestNodeTime.LookAhead,
-			Ib_IsNULL:    true,
+			IiTiempo:     nextTime,
+			Ib_IsNULL:    1,
 		}
-		se.Node.sendEv2All(&nullEv)
 		se.Logger.Trace.Printf("Sending NULL event: %s\n", nullEv)
+		if nullEv.getTiempo() <= se.iiFinClk {
+			se.Node.sendEv2All(&nullEv)
+		}
 
 		// Wait for a event or a null message
-		ev := se.Node.waitEvent()
+		se.Logger.Trace.Printf("	Waiting for incoming event...\n")
+		recvEv := <-se.ChRecvEv
 
 		// Process event
-		if ev.IsClosingEvent() {
-			se.Logger.Warning.Printf("Received clossing event %s\n", ev)
-			return ev
-		} else if ev.IsNullEvent() {
+		if recvEv.IsClosingEvent() {
+			se.Logger.Warning.Printf("Received closing event %s\n", recvEv)
+			time.Sleep(utils.TimeWaitStop)
+			se.ChFinish <- true
+			return &recvEv
+		} else if recvEv.IsNullEvent() {
 			// Update RemoteSafeTime
-			sender := (*se.Node.Partners)[ev.getSender()]
-			sender.RemoteSafeTime = ev.IiTiempo
-			(*se.Node.Partners)[ev.getSender()] = sender
+			sender := se.Node.Partners[recvEv.getSender()]
+			sender.RemoteSafeTime = recvEv.IiTiempo
+			se.Node.Partners[recvEv.getSender()] = sender
 
 			// Check if any event has been unblocked
-			se.Logger.Trace.Printf("NULL received: %s\n", ev)
-			ev, isLocalEv = se.getLowerEvent()
-
+			se.Logger.Trace.Printf("NULL received: %s\n", recvEv)
 		} else { // Event can be processed
 			// Insert event in remote node FIFO
-			se.Logger.Trace.Printf("Adding received event to incFIFO: %s\n", ev)
-			senderNode := (*se.Node.Partners)[ev.getSender()]
-			senderNode.RemoteSafeTime = ev.IiTiempo
-			senderNode.IncomingEvFIFO.inserta(*ev)
-			(*se.Node.Partners)[ev.getSender()] = senderNode
+			se.Logger.Trace.Printf("Adding received event to incFIFO: %s\n", recvEv)
+			senderNode := se.Node.Partners[recvEv.getSender()]
+			senderNode.RemoteSafeTime = recvEv.IiTiempo
+			senderNode.IncomingEvFIFO.inserta(recvEv)
+			se.Node.Partners[recvEv.getSender()] = senderNode
 		}
 	}
 }
@@ -286,40 +297,38 @@ func (se *SimulationEngine) simularUnpaso() bool {
 	}
 }
 
+func (se *SimulationEngine) FinishSim() *Event {
+	// Send closing event to partners
+	ev := Event{
+		IiTiempo:     se.iiRelojLocal,
+		IiTransicion: FINISH_EVENT,
+		IiCte:        0,
+		Ib_IsNULL:    0,
+	}
+	se.Logger.Info.Println("Sending closing event")
+	se.Node.sendEv2All(&ev)
+	time.Sleep(utils.TimeWaitStop)
+	se.ChFinish <- true
+	return &ev
+}
+
 // SimularPeriodo de una RdP
 // RECIBE: - Ciclo inicial (por si marcado recibido no se corresponde al
 //				inicial sino a uno obtenido tras simular ai_cicloinicial ciclos)
 //		   - Ciclo con el que terminamos
-func (se *SimulationEngine) SimularPeriodo(CicloInicial, CicloFinal TypeClock) {
+func (se *SimulationEngine) SimularPeriodo() {
 	ldIni := time.Now()
 
-	// Inicializamos el reloj local
-	// ------------------------------------------------------------------
-	se.iiRelojLocal = CicloInicial
-	se.Node.Wait4PartnersSetup()
-
-	se.Node.sendEv2All(&Event{
-		IiTiempo:  se.iiRelojLocal,
-		Ib_IsNULL: true,
-	})
+	//se.Node.Wait4PartnersSetup()
 	finish := false
-	for se.iiRelojLocal < CicloFinal && !finish {
+	initClk := se.iiRelojLocal
+	for se.iiRelojLocal < se.iiFinClk && !finish {
 		finish = se.simularUnpaso()
 	}
 
 	if !finish {
-		// Send closing event to partners
-		//TODO: aqui puede fallar, puede que algunos terminen por tiempo y no reciban el evento
-		ev := Event{
-			IiTiempo:     se.iiRelojLocal,
-			IiTransicion: FINISH_EVENT,
-			IiCte:        0,
-			Ib_IsNULL:    false,
-		}
-		se.Logger.Info.Println("Sending closing event")
-		se.Node.sendEv2All(&ev)
+		se.FinishSim()
 	}
-
 	elapsedTime := time.Since(ldIni)
 
 	se.Logger.Info.Printf("Eventos por segundo = %.4f\n",
@@ -328,6 +337,6 @@ func (se *SimulationEngine) SimularPeriodo(CicloInicial, CicloFinal TypeClock) {
 	// Devolver los resultados de la simulacion
 	se.devolverResultados()
 	se.Logger.Info.Println("---------------------")
-	se.Logger.Info.Printf("TIEMPO SIMULADO en ciclos: %d\n", CicloFinal-CicloInicial)
+	se.Logger.Info.Printf("TIEMPO SIMULADO en ciclos: %d\n", se.iiFinClk-initClk)
 	se.Logger.Info.Printf("TIEMPO ejecución REAL simulación: %s\n", elapsedTime.String())
 }

@@ -3,47 +3,77 @@
   "EXTERIOR": 2,
   "ia_red": [
     {
-      "ii_idglobal": 2,
+      "ii_idglobal": 8,
       "ii_valor": 1,
       "ii_tiempo": 0,
-      "ii_duracion_disparo": 1,
+      "ii_duracion_disparo": 3,
       "ii_listactes_IUL": [
-       [2, 1]
-      ],
-      "ii_listactes_PUL": [
-        [1, -1]
-      ],
-      "ii_vecesdisparada": 0,
-      "ii_grupoconflicto": 0,
-      "iL_tiemposhastamarca": {
-        "il_tiempos": [
+        [
+          8,
           1
         ]
-      },
-      "ib_desalida": true
-    },
-    {
-      "ii_idglobal": 3,
-      "ii_valor": 1,
-      "ii_tiempo": 0,
-      "ii_duracion_disparo": 1,
-      "ii_listactes_IUL": [
-        [3, 1]
       ],
       "ii_listactes_PUL": [
-        [1, -1]
+        [
+          9,
+          -1
+        ]
       ],
       "ii_vecesdisparada": 0,
       "ii_grupoconflicto": 0,
+      "ib_desalida": false
+    },
+    {
+      "ii_idglobal": 9,
+      "ii_valor": 1,
+      "ii_tiempo": 0,
+      "ii_duracion_disparo": 3,
+      "ii_listactes_IUL": [
+        [
+          9,
+          1
+        ]
+      ],
+      "ii_listactes_PUL": [
+        [
+          10,
+          -1
+        ]
+      ],
+      "ii_vecesdisparada": 0,
+      "ii_grupoconflicto": 1,
+      "ib_desalida": false
+    },
+    {
+      "ii_idglobal": 10,
+      "ii_valor": 1,
+      "ii_tiempo": 0,
+      "ii_duracion_disparo": 3,
+      "ii_listactes_IUL": [
+        [
+          10,
+          1
+        ]
+      ],
+      "ii_listactes_PUL": [
+        [
+          1,
+          -1
+        ]
+      ],
+      "ii_vecesdisparada": 0,
+      "ii_grupoconflicto": 2,
       "iL_tiemposhastamarca": {
         "il_tiempos": [
+          3,
+          2,
           1
         ]
       },
       "ib_desalida": true
     }
   ],
-  "ii_indice": 2,
+  "ii_indice": 3,
   "is_transicionessensibilizadas": [],
   "il_eventos": {
     "il_milista": []
@@ -57,10 +87,13 @@
   "il_grupos_conflicto": {
     "il_milista": [
       [
-        2
+        8
       ],
       [
-        3
+        9
+      ],
+      [
+        10
       ]
     ]
   }
