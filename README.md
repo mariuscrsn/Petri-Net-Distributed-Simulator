@@ -13,7 +13,7 @@ Class diagram.
 ![State diagram](doc/Estados_SimDist.png)
 State/activity diagram.
 
-##Setup
+## Setup
 - Define the LEFs (Linear Enabling Functions) of the different subnets in the files [\<prefix\>.subred.json](code/simuladores/cmd/distsim/testdata/2subredes.network.json)
   located in `cmd/distsim/testdata`  
 - Define in the the [*.network.json](code/simuladores/cmd/distsim/testdata/2subredes.network.json) files the information 
